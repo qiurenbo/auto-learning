@@ -8,7 +8,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "set NODE_ENV=DEBUG&& chcp 65001 && nodemon --watch * --exec \"electron .\"",
-    "build": "electron-packager . --overwrite"
+    "build": "electron-packager . --platform=win32 --arch=ia32 --overwrite && electron-packager . --platform=win32 --arch=x64 --overwrite"
   },
   "dependencies": {
     "winston": "^3.2.1"
