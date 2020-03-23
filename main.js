@@ -17,7 +17,15 @@ const createWindow = () => {
   window.loadURL("http://zy.jxkp.net/");
   window.maximize();
 
-  tray = new Tray("./assets/favicon.ico");
+  let assetsPath = path.join(__dirname, "../../resources");
+
+  if (process.env.NODE_ENV === "DEBUG") {
+    window.webContents.openDevTools();
+    assetsPath = __dirname;
+  }
+
+  tray = new Tray(path.join(assetsPath, "assets/favicon.ico"));
+
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "退出",
@@ -37,17 +45,14 @@ const createWindow = () => {
     window.show();
   });
 
-  if (process.env.NODE_ENV === "DEBUG") window.webContents.openDevTools();
-
   // Remove menu bar
   // https://stackoverflow.com/questions/39091964/remove-menubar-from-electron-app
   window.setMenu(null);
 
-  const userAgent = window.webContents
-    .getUserAgent()
+  const userAgent = window.webContents.userAgent
     .replace(/auto-learning/, "")
     .replace(/Electron.+? /, "");
-  window.webContents.setUserAgent(userAgent);
+  window.webContents.userAgent = userAgent;
 
   window.once("ready-to-show", () => {
     windows.show();
