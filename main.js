@@ -1,10 +1,12 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Tray, Menu } = require("electron");
 const path = require("path");
 const logger = require("./logger");
+
 let learningMinutes = 5;
+let window = null;
 const createWindow = () => {
   // Create the browser window.
-  const window = new BrowserWindow({
+  window = new BrowserWindow({
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload/preload.js")
@@ -14,6 +16,26 @@ const createWindow = () => {
   // and load the index.html of the app.
   window.loadURL("http://zy.jxkp.net/");
   window.maximize();
+
+  tray = new Tray("./assets/favicon.ico");
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "退出",
+      click: () => {
+        if (process.platform !== "darwin") {
+          app.quit();
+        }
+      }
+    }
+  ]);
+
+  // Call this again for Linux because we modified the context menu
+  tray.setContextMenu(contextMenu);
+
+  tray.on("double-click", () => {
+    window.maximize();
+    window.show();
+  });
 
   if (process.env.NODE_ENV === "DEBUG") window.webContents.openDevTools();
 
@@ -37,6 +59,11 @@ const createWindow = () => {
 
   window.webContents.on("did-redirect-navigation", (event, url) => {
     logger.log("debug", "did-redirect-navigation:" + url);
+  });
+
+  window.on("minimize", event => {
+    event.preventDefault();
+    window.hide();
   });
 
   ipcMain.on("log", (event, msg) => {
